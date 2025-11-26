@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقسيم الفيديوهات - Video Splitter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=3">
+</head>
+<body>
+    <!-- Sticky Banner Ad -->
+    <div class="ad-sticky-banner" id="stickyBannerAd">
+        <div class="ad-content">
+            <!-- Google AdSense Code Here - Sticky Banner -->
+            <div class="ad-placeholder" style="background: transparent; border: none; min-height: 60px;">
+                <p style="font-size: 0.9em;">إعلان شريطي ثابت - ضع كود AdSense هنا</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Left Sidebar Ad -->
+    <div class="ad-sidebar-container ad-sidebar-left">
+        <div class="ad-sidebar-content">
+            <!-- Google AdSense Code Here - Left Sidebar -->
+            <div class="ad-placeholder" style="background: transparent; border: 1px dashed rgba(255,255,255,0.3); min-height: 500px; width: 100%;">
+                <p style="font-size: 0.8em; writing-mode: vertical-rl;">إعلان جانبي أيسر</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar Ad -->
+    <div class="ad-sidebar-container ad-sidebar-right">
+        <div class="ad-sidebar-content">
+            <!-- Google AdSense Code Here - Right Sidebar -->
+            <div class="ad-placeholder" style="background: transparent; border: 1px dashed rgba(255,255,255,0.3); min-height: 500px; width: 100%;">
+                <p style="font-size: 0.8em; writing-mode: vertical-rl;">إعلان جانبي أيمن</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🎬 تقسيم الفيديوهات</h1>
+            <p>قسم مقاطع الفيديو إلى أجزاء متساوية بسهولة</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+                <a href="/convert" class="btn btn-secondary">تحويل الفيديو</a>
+                <a href="/audio" class="btn btn-secondary">تحويل الصوت 🎵</a>
+            </div>
+        </header>
+
+        <!-- Ad Slot 1: Top Banner (After Header) -->
+        <div class="ad-container ad-top">
+            <!-- Google AdSense Code Here -->
+            <div class="ad-placeholder">
+                <p>مساحة إعلانية</p>
+                <p style="font-size: 0.8em;">ضع كود AdSense هنا بعد الموافقة</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <div class="card upload-card">
+                <div class="card-header">
+                    <h2>📤 رفع الفيديو</h2>
+                </div>
+                <div class="card-body">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">🎥</div>
+                        <p class="upload-text">اسحب وأفلت الفيديو هنا</p>
+                        <p class="upload-subtext">أو</p>
+                        <label for="videoInput" class="btn btn-primary" onclick="event.stopPropagation()">اختر ملف</label>
+                        <input type="file" id="videoInput" accept="video/*" hidden>
+                        <p class="upload-info">الصيغ المدعومة: MP4, AVI, MOV, MKV, FLV, WMV, WEBM</p>
+                    </div>
+                    
+                    <!-- Video Info (Hidden initially) -->
+                    <div class="video-info" id="videoInfo" style="display: none;">
+                        <div class="info-item">
+                            <span class="info-label">📁 اسم الملف:</span>
+                            <span class="info-value" id="fileName"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">⏱️ المدة:</span>
+                            <span class="info-value" id="videoDuration"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📏 الحجم:</span>
+                            <span class="info-value" id="fileSize"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Split Settings -->
+            <div class="card split-card" id="splitCard" style="display: none;">
+                <div class="card-header">
+                    <h2>✂️ إعدادات التقسيم</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="numParts">عدد الأجزاء المطلوبة:</label>
+                        <div class="input-group">
+                            <button class="btn-counter" id="decreaseBtn">-</button>
+                            <input type="number" id="numParts" value="2" min="2" max="20">
+                            <button class="btn-counter" id="increaseBtn">+</button>
+                        </div>
+                        <p class="input-hint">مدة كل جزء: <span id="partDuration">--</span></p>
+                    </div>
+                    
+                    <!-- Overlap Option -->
+                    <div class="form-group">
+                        <label for="overlapSeconds">
+                            <input type="checkbox" id="enableOverlap" style="margin-left: 8px;">
+                            تفعيل التداخل بين الأجزاء
+                        </label>
+                        <div class="overlap-settings" id="overlapSettings" style="display: none; margin-top: 15px;">
+                            <label for="overlapSeconds" style="font-size: 1rem; opacity: 0.9;">عدد ثواني التداخل:</label>
+                            <div class="input-group" style="margin-top: 10px;">
+                                <button class="btn-counter" id="decreaseOverlapBtn">-</button>
+                                <input type="number" id="overlapSeconds" value="5" min="1" max="30">
+                                <button class="btn-counter" id="increaseOverlapBtn">+</button>
+                            </div>
+                            <p class="input-hint" style="margin-top: 8px;">
+                                💡 كل جزء سيبدأ من آخر <span id="overlapDisplay">5</span> ثواني من الجزء السابق
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success btn-split" id="splitBtn">
+                        <span class="btn-icon">✂️</span>
+                        ابدأ التقسيم
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="card progress-card" id="progressCard" style="display: none;">
+                <div class="card-header">
+                    <h2>⚙️ جاري المعالجة...</h2>
+                </div>
+                <div class="card-body">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p class="progress-text" id="progressText">0%</p>
+                    <p class="progress-status" id="progressStatus">جاري تحليل الفيديو...</p>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card results-card" id="resultsCard" style="display: none;">
+                <div class="card-header">
+                    <h2>✅ اكتمل التقسيم!</h2>
+                </div>
+                <div class="card-body">
+                    <div class="results-grid" id="resultsGrid">
+                        <!-- Results will be added here dynamically -->
+                    </div>
+
+                    <!-- Ad Slot 2: Middle (Before Download Buttons) -->
+                    <div class="ad-container ad-middle">
+                        <!-- Google AdSense Code Here -->
+                        <div class="ad-placeholder">
+                            <p>مساحة إعلانية</p>
+                            <p style="font-size: 0.8em;">ضع كود AdSense هنا بعد الموافقة</p>
+                        </div>
+                    </div>
+
+                    <div class="results-actions">
+                        <button class="btn btn-primary" id="downloadAllBtn">
+                            <span class="btn-icon">📥</span>
+                            تحميل الكل
+                        </button>
+                        <button class="btn btn-secondary" id="resetBtn">
+                            <span class="btn-icon">🔄</span>
+                            فيديو جديد
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Ad Slot 3: Bottom (Before Footer) -->
+        <div class="ad-container ad-bottom">
+            <!-- Google AdSense Code Here -->
+            <div class="ad-placeholder">
+                <p>مساحة إعلانية</p>
+                <p style="font-size: 0.8em;">ضع كود AdSense هنا بعد الموافقة</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>تم التطوير بواسطة Hussain 💻 | Video Splitter © 2025</p>
+            <div class="footer-links">
+                <a href="/privacy">سياسة الخصوصية</a>
+                <span>|</span>
+                <a href="/terms">شروط الاستخدام</a>
+                <span>|</span>
+                <a href="/about">من نحن</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>جاري الرفع...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/ads-manager.js') }}?v=3"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
